@@ -1,0 +1,33 @@
+# 这个是一个简单的lr模型，用的数据跟lr+gbdt是同一个数据源。
+
+
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+#读取数据，1）读取大数据的时候怎么处理 2）只读取前n行 3）第一行是不是列标签
+df_train = pd.read_csv('D:/myStudy/data/gbdt+lr/train.csv')
+df_test = pd.read_csv('D:/myStudy/data/gbdt+lr/test.csv')
+#pandas df的基础操作
+# print(df_train.info())
+# print(df_train['ps_ind_01'].groupby([df_train['ps_ind_01'],df_train['target']]).count())
+# print(df_train['ps_ind_01'].groupby([df_train['ps_calc_15_bin'],df_train['target']]).count())
+print(df_train['target'].groupby([df_train['target']]).count())
+#feature
+feature_train = df_train.columns.drop(['target','Unnamed: 0','id'])
+print(feature_train)
+y_train = df_train['target']
+y_test = df_test['target']
+X_train = df_train[feature_train]
+X_test = df_test[feature_train]
+
+lr = LogisticRegression(penalty='l2',C=0.0000000001) # logestic model construction
+lr.fit(X_train,y_train)
+# predict是训练后返回预测结果，是标签值
+# predict_proba返回的是一个 n 行 k 列的数组， 第 i 行 第 j 列上的数值是模型预测 第 i 个预测样本为某个标签的概率，并且每一行的概率和为1
+y_pred_test = lr.predict_proba(X_test)
+
+print(y_pred_test)
+NE = (-1) / len(y_pred_test) * sum(((1+y_test)/2 * np.log(y_pred_test[:,1]) +  (1-y_test)/2 * np.log(1 - y_pred_test[:,1])))
+print("Normalized Cross Entropy " + str(NE))
+
