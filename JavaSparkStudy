@@ -1,1 +1,87 @@
 // java spark study
+/**
+         * cheng
+         */
+        // java 基础操作test
+        List<Integer> data = Arrays.asList(5,1,1,4,4,2,2);
+        JavaRDD<Integer> javaRDD = jsc.parallelize(data);
+        // foreach
+        javaRDD.foreach(new VoidFunction<Integer>() {
+            @Override
+            public void call(Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+        // fiter
+        JavaRDD<Integer> filterRDD = javaRDD.filter(new Function<Integer, Boolean>() {
+            @Override
+            public Boolean call(Integer integer) throws Exception {
+                return integer > 3;
+            }
+        });
+        filterRDD.foreach(new VoidFunction<Integer>() {
+            @Override
+            public void call(Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+        // map
+        javaRDD.map(new Function<Integer, Integer>() {
+            @Override
+            public Integer call(Integer integer) throws Exception {
+                Integer re = 0;
+                re = integer * integer;
+                return re;
+            }
+        }).foreach(new VoidFunction<Integer>() {
+            @Override
+            public void call(Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+        // flatMap
+        JavaRDD<String> strRDD = jsc.parallelize(Arrays.asList("hello world", "cheng qian long"));
+        strRDD.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public Iterator<String> call(String s) throws Exception {
+
+                return Arrays.asList(s.split(" ")).iterator();
+            }
+        }).foreach(new VoidFunction<String>() {
+            @Override
+            public void call(String s) throws Exception {
+                System.out.println(s);
+            }
+        });
+        // distinct()
+        javaRDD.distinct().foreach(new VoidFunction<Integer>() {
+            @Override
+            public void call(Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+        // sample
+        javaRDD.sample(false,0.5).foreach(new VoidFunction<Integer>() {
+            @Override
+            public void call(Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+        // reduce
+        Integer sum =javaRDD.reduce(new Function2<Integer, Integer, Integer>() {
+            @Override
+            public Integer call(Integer x, Integer y) throws Exception {
+                return x+y;
+            }
+        });
+        System.out.println(sum);
+        System.out.println(javaRDD.take(10));
+
+
+        JavaPairRDD<Long, Object> s1 = connectGraph.vertices().toJavaRDD().mapToPair(new PairFunction<Tuple2<Object, Object>, Long, Object>() {
+            @Override
+            public Tuple2<Long, Object> call(Tuple2<Object, Object> s) throws Exception {
+                System.out.println(s._1 + " : " + s._2);
+                return new Tuple2<>(Long.parseLong(s._1.toString()), s._2);
+            }
+        });
